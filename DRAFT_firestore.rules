@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper: Valid ID format
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Helper: Sign-in check (using Google or Anonymous if enabled)
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // --- Inboxes ---
+    match /inboxes/{inboxId} {
+      function isValidInbox(data) {
+        return data.keys().hasAll(['email', 'createdAt', 'expiresAt']) 
+          && data.keys().size() == 3
+          && data.email is string && data.email.size() > 0 && data.email.size() <= 100
+          && data.createdAt == request.time
+          && data.expiresAt is timestamp;
+      }
+
+      // Allow anyone to create an inbox (anonymous access for temp mail)
+      allow create: if isValidId(inboxId) && isValidInbox(request.resource.data);
+      
+      // Allow read/update if they are the "owner" or have the ID (for shared temp boxes)
+      // In a real app, we'd use request.auth.uid == resource.data.ownerId
+      allow get: if true; 
+      allow update: if false; // Inboxes are immutable for this demo
+      allow delete: if false; // Managed by TTL / backend cleanup
+      
+      // --- Emails Subcollection ---
+      match /emails/{emailId} {
+        function isValidEmail(data) {
+          return data.keys().hasAll(['from', 'subject', 'body', 'receivedAt'])
+            && data.keys().size() == 4
+            && data.from is string && data.from.size() <= 200
+            && data.subject is string && data.subject.size() <= 200
+            && data.body is string && data.body.size() <= 10000
+            && data.receivedAt == request.time;
+        }
+
+        // Allow anyone to "send" an email to the inbox (simulation)
+        // In reality, this would be restricted to a service account / webhook
+        allow create: if isValidId(emailId) && isValidEmail(request.resource.data);
+        
+        // Only allow reading the emails if you can read the inbox
+        allow list, get: if true; 
+      }
+    }
+  }
+}

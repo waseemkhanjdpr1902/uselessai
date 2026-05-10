@@ -1,0 +1,143 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Extended user data for the SaaS platform.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "plan": { "type": "string", "enum": ["free", "pro", "business"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "apiCredits": { "type": "number" },
+        "referralCode": { "type": "string" }
+      },
+      "required": ["uid", "email", "plan"]
+    },
+    "Inbox": {
+      "title": "Temporary Inbox",
+      "description": "Store for temp email accounts.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "address": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isPremium": { "type": "boolean" }
+      }
+    },
+    "Email": {
+      "title": "Incoming Email",
+      "description": "Stored emails for temp mailboxes.",
+      "type": "object",
+      "properties": {
+        "inboxId": { "type": "string" },
+        "from": { "type": "string" },
+        "subject": { "type": "string" },
+        "body": { "type": "string" },
+        "receivedAt": { "type": "string", "format": "date-time" },
+        "attachments": { "type": "array" }
+      }
+    },
+    "ShortLink": {
+      "title": "URL Shortener",
+      "description": "Shortened links data.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "originalUrl": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "clicks": { "type": "number" },
+        "password": { "type": "string" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "QRCode": {
+      "title": "QR Code",
+      "description": "Generated QR codes metadata.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "content": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "type": { "type": "string", "enum": ["static", "dynamic"] },
+        "scanCount": { "type": "number" },
+        "config": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "UsageLog": {
+      "title": "Usage Analytics",
+      "description": "Logs for tracking tool usage across the platform.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "tool": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "metadata": { "type": "object" }
+      }
+    },
+    "Resume": {
+      "title": "Professional Resume",
+      "description": "User generated resumes for ATS optimization.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "content": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "template": { "type": "string" }
+      }
+    },
+    "ShortUrl": {
+      "title": "Short URL Mapping",
+      "description": "Mapping from slug to target URL.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "targetUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and subscription data."
+    },
+    "users/{userId}/resumes/{resumeId}": {
+      "schema": "Resume",
+      "description": "User saved resumes."
+    },
+    "shortUrls/{slug}": {
+      "schema": "ShortUrl",
+      "description": "Globally accessible short URLs."
+    },
+    "inboxes/{inboxId}": {
+      "schema": "Inbox",
+      "description": "Temporary mailboxes."
+    },
+    "inboxes/{inboxId}/messages/{messageId}": {
+      "schema": "Email",
+      "description": "Emails received in a specific inbox."
+    },
+    "links/{slug}": {
+      "schema": "ShortLink",
+      "description": "Shortened URL mappings."
+    },
+    "qrcodes/{qrId}": {
+      "schema": "QRCode",
+      "description": "QR Code configurations."
+    },
+    "logs/{logId}": {
+      "schema": "UsageLog",
+      "description": "Activity and usage logs."
+    }
+  }
+}
