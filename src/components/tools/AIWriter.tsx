@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, AlertCircle } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -9,105 +9,73 @@ interface Message {
 
 export function AIWriter() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! How can I help you today?' }
+    { 
+      role: 'assistant', 
+      content: '👋 AI Writer is currently under maintenance. You can still use other tools.' 
+    }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = { role: 'user', content: input };
-    const newMessages = [...messages, userMessage];
-
-    setMessages(newMessages);
+  const sendMessage = () => {
+    if (!input.trim()) return;
+    
+    setMessages(prev => [...prev, { role: 'user', content: input }]);
     setInput('');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
-      });
-
-      if (!response.ok) throw new Error();
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error();
-
-      let assistantMessage = '';
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        assistantMessage += new TextDecoder().decode(value);
-
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: assistantMessage };
-          return updated;
-        });
-      }
-    } catch (error) {
-      console.error(error);
+    
+    setTimeout(() => {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Sorry, something went wrong. Please try again.' 
+        content: 'Sorry, AI is temporarily disabled due to configuration issues. Other tools are working normally.' 
       }]);
-    } finally {
-      setIsLoading(false);
-    }
+    }, 800);
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">AI Writer</h1>
-        <p className="text-zinc-600">Powerful AI assistant for writing, brainstorming, and more</p>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="mb-8 flex items-center gap-3">
+        <AlertCircle className="w-8 h-8 text-amber-500" />
+        <div>
+          <h1 className="text-4xl font-bold">AI Writer</h1>
+          <p className="text-zinc-600">Temporarily in maintenance mode</p>
+        </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-xl border border-zinc-200 h-[600px] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-xl border border-zinc-200 h-[620px] flex flex-col overflow-hidden">
         <div className="flex-1 p-6 overflow-y-auto space-y-6">
-          {messages.map((msg, index) => (
+          {messages.map((msg, i) => (
             <motion.div
-              key={index}
+              key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${
-                msg.role === 'user' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-900'
+              <div className={`max-w-[80%] px-5 py-4 rounded-2xl ${
+                msg.role === 'user' 
+                  ? 'bg-zinc-900 text-white' 
+                  : 'bg-amber-50 border border-amber-200'
               }`}>
                 {msg.content}
               </div>
             </motion.div>
           ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-zinc-100 rounded-2xl px-5 py-3">
-                <Loader2 className="w-5 h-5 animate-spin" />
-              </div>
-            </div>
-          )}
+          {isLoading && <Loader2 className="animate-spin mx-auto" />}
         </div>
 
-        <div className="p-6 border-t border-zinc-200 bg-white">
+        <div className="p-6 border-t">
           <div className="flex gap-3">
             <input
-              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Type your message here..."
-              className="flex-1 bg-zinc-100 border-0 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-              disabled={isLoading}
+              placeholder="AI is in maintenance mode..."
+              className="flex-1 bg-zinc-100 rounded-2xl px-6 py-4 focus:outline-none"
+              disabled
             />
             <button
               onClick={sendMessage}
-              disabled={isLoading || !input.trim()}
-              className="bg-zinc-900 text-white p-4 rounded-2xl hover:bg-black transition-colors disabled:opacity-50"
+              disabled
+              className="bg-zinc-300 text-zinc-500 px-8 rounded-2xl"
             >
               <Send size={24} />
             </button>
