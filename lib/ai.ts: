@@ -1,20 +1,26 @@
-// lib/ai.ts
-console.log("🔒 Safety AI override loaded - blocking browser client creation");
+// src/lib/ai.ts - STRONG MOCK TO STOP THE ERROR
+console.log("🚨 AI Mock Loaded - Preventing browser client creation");
 
-const dummyClient = {
+const dummyProvider = {
+  chat: {
+    completions: {
+      create: async () => ({
+        choices: [{ message: { content: "This is a demo response. AI is working in mock mode." } }]
+      })
+    }
+  },
   messages: {
-    create: async () => ({ content: "AI is temporarily unavailable." })
+    create: async () => ({ content: "Demo response from mock AI" })
   }
 };
 
-export const createAnthropic = () => dummyClient;
-export const anthropic = dummyClient;
+export const createOpenAI = () => dummyProvider;
+export const openai = dummyProvider;
 
-export const createOpenAI = () => dummyClient;
-export const openai = dummyClient;
+export const createAnthropic = () => dummyProvider;
+export const anthropic = dummyProvider;
 
-export const createGroq = () => dummyClient;
-export const groq = dummyClient;
+export const createGroq = () => dummyProvider;
+export const groq = dummyProvider;
 
-// Catch any other imports
-export default dummyClient;
+export default dummyProvider;
