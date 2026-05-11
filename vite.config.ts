@@ -7,9 +7,10 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 3000,
   },
   define: {
-    'process.env': {}
+    'process.env.OPENAI_API_KEY': JSON.stringify(''),
+    'process.env.GROQ_API_KEY': JSON.stringify(''),
   }
 })
