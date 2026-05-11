@@ -1,0 +1,20 @@
+// lib/ai.ts
+console.log("🔒 Safety AI override loaded - blocking browser client creation");
+
+const dummyClient = {
+  messages: {
+    create: async () => ({ content: "AI is temporarily unavailable." })
+  }
+};
+
+export const createAnthropic = () => dummyClient;
+export const anthropic = dummyClient;
+
+export const createOpenAI = () => dummyClient;
+export const openai = dummyClient;
+
+export const createGroq = () => dummyClient;
+export const groq = dummyClient;
+
+// Catch any other imports
+export default dummyClient;
