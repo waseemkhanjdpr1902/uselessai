@@ -1,7 +1,12 @@
-// lib/ai.ts
-import { createOpenAI } from '@ai-sdk/openai';
+// lib/ai.ts - Safety file to prevent browser crash
+console.warn("AI client initialized via safety file");
 
-export const openai = createOpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true   // Temporary - we'll remove later
-});
+export const createOpenAI = () => {
+  return {
+    chat: { completions: { create: async () => ({}) } }
+  };
+};
+
+export const openai = createOpenAI();
+export const groq = createOpenAI();
+export const anthropic = createOpenAI();
