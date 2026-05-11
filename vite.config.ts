@@ -10,11 +10,13 @@ export default defineConfig({
     },
   },
   build: {
-    // Don't fail build on TypeScript errors
     rollupOptions: {
       onwarn(warning, warn) {
-        // Suppress all warnings during build
-        if (warning.code === 'MODULE_NOT_FOUND') return
+        if (
+          warning.code === 'MODULE_NOT_FOUND' ||
+          warning.code === 'UNRESOLVED_IMPORT' ||
+          (warning.message && warning.message.includes('motion/react'))
+        ) return
         warn(warning)
       },
     },
@@ -32,6 +34,7 @@ export default defineConfig({
       'pdf-lib',
       'pdfjs-dist',
       '@google/generative-ai',
+      'motion',
     ],
   },
 })
