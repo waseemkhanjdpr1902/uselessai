@@ -18,7 +18,9 @@ export function AIWriter() {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+
+    setMessages(newMessages);
     setInput('');
     setIsLoading(true);
 
@@ -26,13 +28,13 @@ export function AIWriter() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ messages: newMessages }),
       });
 
-      if (!response.ok) throw new Error('Failed to get response');
+      if (!response.ok) throw new Error();
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('No reader');
+      if (!reader) throw new Error();
 
       let assistantMessage = '';
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
@@ -40,16 +42,12 @@ export function AIWriter() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
-        const chunk = new TextDecoder().decode(value);
-        assistantMessage += chunk;
+        assistantMessage += new TextDecoder().decode(value);
 
         setMessages(prev => {
-          const last = prev[prev.length - 1];
-          if (last.role === 'assistant') {
-            return [...prev.slice(0, -1), { role: 'assistant', content: assistantMessage }];
-          }
-          return prev;
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: assistantMessage };
+          return updated;
         });
       }
     } catch (error) {
@@ -70,7 +68,6 @@ export function AIWriter() {
         <p className="text-zinc-600">Powerful AI assistant for writing, brainstorming, and more</p>
       </div>
 
-      {/* Chat Area */}
       <div className="bg-white rounded-3xl shadow-xl border border-zinc-200 h-[600px] flex flex-col overflow-hidden">
         <div className="flex-1 p-6 overflow-y-auto space-y-6">
           {messages.map((msg, index) => (
@@ -81,9 +78,7 @@ export function AIWriter() {
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${
-                msg.role === 'user' 
-                  ? 'bg-zinc-900 text-white' 
-                  : 'bg-zinc-100 text-zinc-900'
+                msg.role === 'user' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-900'
               }`}>
                 {msg.content}
               </div>
@@ -98,7 +93,6 @@ export function AIWriter() {
           )}
         </div>
 
-        {/* Input Area */}
         <div className="p-6 border-t border-zinc-200 bg-white">
           <div className="flex gap-3">
             <input
