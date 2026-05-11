@@ -1,12 +1,20 @@
-// lib/ai.ts - Safety file to prevent browser crash
-console.warn("AI client initialized via safety file");
+// lib/ai.ts - EMERGENCY OVERRIDE TO STOP THE ERROR
+console.warn("⚠️ Using safety AI override - client-side initialization blocked");
 
-export const createOpenAI = () => {
-  return {
-    chat: { completions: { create: async () => ({}) } }
-  };
+const dummyProvider = {
+  chat: {
+    completions: {
+      create: async () => ({ choices: [{ message: { content: "AI is not available right now." } }] })
+    }
+  }
 };
 
-export const openai = createOpenAI();
-export const groq = createOpenAI();
-export const anthropic = createOpenAI();
+export const createOpenAI = () => dummyProvider;
+export const openai = dummyProvider;
+export const createGroq = () => dummyProvider;
+export const groq = dummyProvider;
+export const createAnthropic = () => dummyProvider;
+export const anthropic = dummyProvider;
+
+// Default export for any wildcard imports
+export default dummyProvider;
