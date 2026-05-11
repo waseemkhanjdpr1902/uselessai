@@ -10,8 +10,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 4000,
   },
   define: {
-    'process.env.OPENAI_API_KEY': JSON.stringify(''),
-    'process.env.GROQ_API_KEY': JSON.stringify(''),
-    'process.env.ANTHROPIC_API_KEY': JSON.stringify(''),
-  }
+    'process.env': JSON.stringify({}),
+  },
 })
