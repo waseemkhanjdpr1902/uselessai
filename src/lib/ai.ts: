@@ -1,0 +1,7 @@
+// lib/ai.ts
+import { createOpenAI } from '@ai-sdk/openai';
+
+export const openai = createOpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true   // Temporary - we'll remove later
+});
